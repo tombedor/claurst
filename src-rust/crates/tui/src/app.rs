@@ -310,6 +310,8 @@ pub struct App {
     pub permission_request: Option<PermissionRequest>,
     pub frame_count: u64,
     pub token_count: u32,
+    /// Maximum token budget (from env var or model context window) — P2 feature flag
+    pub token_budget: Option<u32>,
     pub cost_usd: f64,
     pub model_name: String,
     /// Current effort level (controls extended-thinking budget_tokens).
@@ -610,6 +612,7 @@ impl App {
             permission_request: None,
             frame_count: 0,
             token_count: 0,
+            token_budget: Self::load_token_budget(),
             cost_usd: 0.0,
             model_name,
             effort_level: EffortLevel::Normal,
@@ -724,6 +727,26 @@ impl App {
             scroll_last_time: None,
             bash_prefix_allowlist: std::collections::HashSet::new(),
         }
+    }
+
+    /// Load token budget from environment or model defaults.
+    /// Returns Some(max_tokens) if available, None otherwise.
+    /// Only enabled when the `token_budget` feature flag is active.
+    #[cfg(feature = "token_budget")]
+    fn load_token_budget() -> Option<u32> {
+        // First check CLAUDE_CODE_TOKEN_BUDGET env var
+        if let Ok(budget_str) = std::env::var("CLAUDE_CODE_TOKEN_BUDGET") {
+            if let Ok(budget) = budget_str.parse::<u32>() {
+                return Some(budget);
+            }
+        }
+        // Could extend this to check model defaults, but for now just env var
+        None
+    }
+
+    #[cfg(not(feature = "token_budget"))]
+    fn load_token_budget() -> Option<u32> {
+        None
     }
 
     /// Update the active model name (also updates cost tracker).

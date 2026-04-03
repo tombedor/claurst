@@ -11,6 +11,25 @@
 mod oauth_flow;
 mod codex_oauth_flow;
 
+// ---------------------------------------------------------------------------
+// Build-time metadata (embedded via build.rs)
+// ---------------------------------------------------------------------------
+
+/// Build timestamp in RFC 3339 format
+pub const BUILD_TIME: &str = env!("BUILD_TIME");
+
+/// Short git commit hash (or "unknown" if not a git repo)
+pub const GIT_COMMIT: &str = env!("GIT_COMMIT");
+
+/// Package/distribution identifier
+pub const PACKAGE_URL: &str = env!("PACKAGE_URL");
+
+/// Feedback/issue reporting channel
+pub const FEEDBACK_CHANNEL: &str = env!("FEEDBACK_CHANNEL");
+
+/// Explanation of issue routing in this build
+pub const ISSUES_EXPLAINER: &str = env!("ISSUES_EXPLAINER");
+
 use anyhow::Context;
 use cc_core::{
     config::{Config, PermissionMode, Settings},
